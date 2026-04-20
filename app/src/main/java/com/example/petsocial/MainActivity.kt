@@ -7,10 +7,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.petsocial.Home.HomeScreen
+import com.example.petsocial.Login.LoginScreen
+import com.example.petsocial.Login.LoginViewModel
+import com.example.petsocial.Models.Rutas
 import com.example.petsocial.ui.theme.PetSocialTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,10 +26,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             PetSocialTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    AppNavigation(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
@@ -31,17 +34,34 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun AppNavigation(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    val loginViewModel: LoginViewModel = viewModel()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PetSocialTheme {
-        Greeting("Android")
+    // Determinar pantalla inicial
+    val startDestination = if (loginViewModel.isUserLoggedIn()) {
+        Rutas.HOME
+    } else {
+        Rutas.LOGIN
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier
+    ) {
+        composable(Rutas.LOGIN) {
+            LoginScreen(
+                loginViewModel = loginViewModel,
+                navController = navController
+            )
+        }
+
+        composable(Rutas.HOME) {
+            HomeScreen(
+                loginViewModel = loginViewModel,
+                navController = navController
+            )
+        }
     }
 }
