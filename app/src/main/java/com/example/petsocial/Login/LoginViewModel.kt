@@ -3,20 +3,24 @@ package com.example.petsocial.Login
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.petsocial.Models.Colecciones
 import com.example.petsocial.Models.Usuario
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class LoginViewModel : ViewModel() {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
 
-    val isLoading = MutableStateFlow(false)
-    val errorMessage = MutableStateFlow<String?>(null)
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean> = _isLoading
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
 
     val TAG = "LoginVM"
 
@@ -31,18 +35,18 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        isLoading.value = true
+        _isLoading.value = true
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                isLoading.value = false
+                _isLoading.value = false
                 if (task.isSuccessful) {
                     Log.d(TAG, "Login exitoso: ${auth.currentUser?.email}")
                     Toast.makeText(context, "Bienvenido!", Toast.LENGTH_SHORT).show()
                     onSuccess()
                 } else {
                     Log.e(TAG, "Error login", task.exception)
-                    errorMessage.value = task.exception?.message
+                    _errorMessage.value = task.exception?.message
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
             }
@@ -60,7 +64,7 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        isLoading.value = true
+        _isLoading.value = true
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -77,21 +81,21 @@ class LoginViewModel : ViewModel() {
                         .document(userId)
                         .set(nuevoUsuario)
                         .addOnSuccessListener {
-                            isLoading.value = false
+                            _isLoading.value = false
                             Log.d(TAG, "Usuario creado: $email")
                             Toast.makeText(context, "Cuenta creada!", Toast.LENGTH_SHORT).show()
                             onSuccess()
                         }
                         .addOnFailureListener { e ->
-                            isLoading.value = false
+                            _isLoading.value = false
                             Log.e(TAG, "Error guardando usuario", e)
-                            errorMessage.value = e.message
+                            _errorMessage.value = e.message
                             Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                         }
                 } else {
-                    isLoading.value = false
+                    _isLoading.value = false
                     Log.e(TAG, "Error registro", task.exception)
-                    errorMessage.value = task.exception?.message
+                    _errorMessage.value = task.exception?.message
                     Toast.makeText(context, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                 }
             }

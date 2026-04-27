@@ -41,6 +41,17 @@ fun HomeScreen(
 
         Button(
             onClick = {
+                navController.navigate(Rutas.MIS_MASCOTAS)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Mis Mascotas")
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Button(
+            onClick = {
                 loginViewModel.signOut(context)
                 navController.navigate(Rutas.LOGIN) {
                     popUpTo(0)

@@ -16,6 +16,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.petsocial.Home.HomeScreen
 import com.example.petsocial.Login.LoginScreen
 import com.example.petsocial.Login.LoginViewModel
+import com.example.petsocial.MisMascotas.MascotaFormScreen
+import com.example.petsocial.MisMascotas.MascotasViewModel
+import com.example.petsocial.MisMascotas.MisMascotasScreen
 import com.example.petsocial.Models.Rutas
 import com.example.petsocial.ui.theme.PetSocialTheme
 
@@ -37,6 +40,7 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = viewModel()
+    val mascotasViewModel: MascotasViewModel = viewModel()
 
     // Determinar pantalla inicial
     val startDestination = if (loginViewModel.isUserLoggedIn()) {
@@ -60,6 +64,20 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         composable(Rutas.HOME) {
             HomeScreen(
                 loginViewModel = loginViewModel,
+                navController = navController
+            )
+        }
+
+        composable(Rutas.MIS_MASCOTAS) {
+            MisMascotasScreen(
+                mascotasViewModel = mascotasViewModel,
+                navController = navController
+            )
+        }
+
+        composable(Rutas.MASCOTA_FORM) {
+            MascotaFormScreen(
+                mascotasViewModel = mascotasViewModel,
                 navController = navController
             )
         }

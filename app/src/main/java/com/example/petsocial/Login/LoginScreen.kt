@@ -3,6 +3,7 @@ package com.example.petsocial.Login
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -24,7 +25,7 @@ fun LoginScreen(
     var nombre by remember { mutableStateOf("") }
     var esRegistro by remember { mutableStateOf(false) }
 
-    val isLoading by loginViewModel.isLoading.collectAsState()
+    val isLoading by loginViewModel.isLoading.observeAsState(false)
 
     Column(
         modifier = Modifier
