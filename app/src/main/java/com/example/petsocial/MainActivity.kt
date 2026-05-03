@@ -10,9 +10,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.petsocial.Detalle.DetalleScreen
+import com.example.petsocial.Feed.FeedScreen
+import com.example.petsocial.Feed.FeedViewModel
 import com.example.petsocial.Home.HomeScreen
 import com.example.petsocial.Login.LoginScreen
 import com.example.petsocial.Login.LoginViewModel
@@ -41,8 +46,8 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val loginViewModel: LoginViewModel = viewModel()
     val mascotasViewModel: MascotasViewModel = viewModel()
+    val feedViewModel: FeedViewModel = viewModel()
 
-    // Determinar pantalla inicial
     val startDestination = if (loginViewModel.isUserLoggedIn()) {
         Rutas.HOME
     } else {
@@ -79,6 +84,25 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             MascotaFormScreen(
                 mascotasViewModel = mascotasViewModel,
                 navController = navController
+            )
+        }
+
+        composable(Rutas.FEED) {
+            FeedScreen(
+                feedViewModel = feedViewModel,
+                navController = navController
+            )
+        }
+
+        composable(
+            route = Rutas.DETALLE,
+            arguments = listOf(navArgument("mascotaId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val mascotaId = backStackEntry.arguments?.getString("mascotaId") ?: ""
+            DetalleScreen(
+                feedViewModel = feedViewModel,
+                navController = navController,
+                mascotaId = mascotaId
             )
         }
     }

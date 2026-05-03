@@ -41,6 +41,17 @@ fun HomeScreen(
 
         Button(
             onClick = {
+                navController.navigate(Rutas.FEED)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ver Feed")
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Button(
+            onClick = {
                 navController.navigate(Rutas.MIS_MASCOTAS)
             },
             modifier = Modifier.fillMaxWidth()
