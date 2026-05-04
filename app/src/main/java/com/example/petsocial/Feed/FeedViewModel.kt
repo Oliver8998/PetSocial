@@ -80,16 +80,21 @@ class FeedViewModel : ViewModel() {
             likedBy.add(userId)
         }
 
-        mascota.likes = likedBy.size
-        mascota.likedBy = likedBy
+        val mascotaActualizada = mascota.copy(
+            likes = likedBy.size,
+            likedBy = likedBy
+        )
 
         db.collection(Colecciones.mascotas)
             .document(mascota.id)
-            .set(mascota)
+            .set(mascotaActualizada)
             .addOnSuccessListener {
                 Log.d(TAG, "Like actualizado")
-                cargarTodasMascotas()
-                cargarMascotaPorId(mascota.id)
+                val index = _todasMascotas.indexOfFirst { it.id == mascota.id }
+                if (index != -1) {
+                    _todasMascotas[index] = mascotaActualizada
+                }
+                _mascotaDetalle.value = mascotaActualizada
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error actualizando like", e)

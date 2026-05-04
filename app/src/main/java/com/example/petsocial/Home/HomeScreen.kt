@@ -52,6 +52,17 @@ fun HomeScreen(
 
         Button(
             onClick = {
+                navController.navigate(Rutas.RANKING)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ranking")
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Button(
+            onClick = {
                 navController.navigate(Rutas.MIS_MASCOTAS)
             },
             modifier = Modifier.fillMaxWidth()

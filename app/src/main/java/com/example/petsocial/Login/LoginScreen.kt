@@ -94,7 +94,7 @@ fun LoginScreen(
                             nombre = nombre,
                             context = context,
                             onSuccess = {
-                                navController.navigate(Rutas.HOME) {
+                                navController.navigate(Rutas.MAIN) {
                                     popUpTo(Rutas.LOGIN) { inclusive = true }
                                 }
                             }
@@ -105,7 +105,7 @@ fun LoginScreen(
                             password = password,
                             context = context,
                             onSuccess = {
-                                navController.navigate(Rutas.HOME) {
+                                navController.navigate(Rutas.MAIN) {
                                     popUpTo(Rutas.LOGIN) { inclusive = true }
                                 }
                             }

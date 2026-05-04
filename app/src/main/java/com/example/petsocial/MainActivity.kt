@@ -19,12 +19,15 @@ import com.example.petsocial.Detalle.DetalleScreen
 import com.example.petsocial.Feed.FeedScreen
 import com.example.petsocial.Feed.FeedViewModel
 import com.example.petsocial.Home.HomeScreen
+import com.example.petsocial.Home.MainScreen
 import com.example.petsocial.Login.LoginScreen
 import com.example.petsocial.Login.LoginViewModel
 import com.example.petsocial.MisMascotas.MascotaFormScreen
 import com.example.petsocial.MisMascotas.MascotasViewModel
 import com.example.petsocial.MisMascotas.MisMascotasScreen
 import com.example.petsocial.Models.Rutas
+import com.example.petsocial.Ranking.RankingScreen
+import com.example.petsocial.Ranking.RankingViewModel
 import com.example.petsocial.ui.theme.PetSocialTheme
 
 class MainActivity : ComponentActivity() {
@@ -47,9 +50,10 @@ fun AppNavigation(modifier: Modifier = Modifier) {
     val loginViewModel: LoginViewModel = viewModel()
     val mascotasViewModel: MascotasViewModel = viewModel()
     val feedViewModel: FeedViewModel = viewModel()
+    val rankingViewModel: RankingViewModel = viewModel()
 
     val startDestination = if (loginViewModel.isUserLoggedIn()) {
-        Rutas.HOME
+        Rutas.MAIN
     } else {
         Rutas.LOGIN
     }
@@ -66,30 +70,19 @@ fun AppNavigation(modifier: Modifier = Modifier) {
             )
         }
 
-        composable(Rutas.HOME) {
-            HomeScreen(
+        composable(Rutas.MAIN) {
+            MainScreen(
                 loginViewModel = loginViewModel,
-                navController = navController
-            )
-        }
-
-        composable(Rutas.MIS_MASCOTAS) {
-            MisMascotasScreen(
                 mascotasViewModel = mascotasViewModel,
-                navController = navController
+                feedViewModel = feedViewModel,
+                rankingViewModel = rankingViewModel,
+                mainNavController = navController
             )
         }
 
         composable(Rutas.MASCOTA_FORM) {
             MascotaFormScreen(
                 mascotasViewModel = mascotasViewModel,
-                navController = navController
-            )
-        }
-
-        composable(Rutas.FEED) {
-            FeedScreen(
-                feedViewModel = feedViewModel,
                 navController = navController
             )
         }

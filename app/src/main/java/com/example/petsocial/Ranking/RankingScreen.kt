@@ -1,17 +1,19 @@
-package com.example.petsocial.Feed
+package com.example.petsocial.Ranking
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,21 +22,21 @@ import com.example.petsocial.Models.Mascota
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedScreen(
-    feedViewModel: FeedViewModel,
+fun RankingScreen(
+    rankingViewModel: RankingViewModel,
     navController: NavHostController
 ) {
-    val mascotas = feedViewModel.todasMascotas
-    val isLoading by feedViewModel.isLoading.observeAsState(false)
+    val mascotas = rankingViewModel.mascotasRanking
+    val isLoading by rankingViewModel.isLoading.observeAsState(false)
 
     LaunchedEffect(Unit) {
-        feedViewModel.cargarTodasMascotas()
+        rankingViewModel.cargarRanking()
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Feed de Mascotas") },
+                title = { Text("🏆 Ranking de Mascotas") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -60,14 +62,14 @@ fun FeedScreen(
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
-                            imageVector = Icons.Default.Pets,
+                            imageVector = Icons.Default.EmojiEvents,
                             contentDescription = null,
                             modifier = Modifier.size(80.dp),
                             tint = MaterialTheme.colorScheme.primary
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            "No hay mascotas",
+                            "No hay mascotas en el ranking",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -79,12 +81,10 @@ fun FeedScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(mascotas) { mascota ->
-                        ItemFeed(
-                            mascota = mascota,
-                            onClick = {
-                                navController.navigate("detalle/${mascota.id}")
-                            }
+                    itemsIndexed(mascotas) { index, mascota ->
+                        ItemRanking(
+                            posicion = index + 1,
+                            mascota = mascota
                         )
                     }
                 }
@@ -94,57 +94,77 @@ fun FeedScreen(
 }
 
 @Composable
-fun ItemFeed(
-    mascota: Mascota,
-    onClick: () -> Unit
+fun ItemRanking(
+    posicion: Int,
+    mascota: Mascota
 ) {
+    val medallColor = when (posicion) {
+        1 -> Color(0xFFFFD700) // Oro
+        2 -> Color(0xFFC0C0C0) // Plata
+        3 -> Color(0xFFCD7F32) // Bronce
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (posicion <= 3) 8.dp else 4.dp
+        ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (posicion <= 3) medallColor.copy(alpha = 0.1f)
+            else MaterialTheme.colorScheme.surface
+        )
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier.size(48.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = Icons.Default.Pets,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-
-                Spacer(Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = mascota.nombre,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
+                if (posicion <= 3) {
+                    Icon(
+                        imageVector = Icons.Default.EmojiEvents,
+                        contentDescription = null,
+                        tint = medallColor,
+                        modifier = Modifier.size(40.dp)
                     )
+                } else {
                     Text(
-                        text = "${mascota.especie} • ${mascota.edad} años",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "$posicion",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
 
-            if (mascota.descripcion.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.width(16.dp))
+
+            Icon(
+                imageVector = Icons.Default.Pets,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = mascota.descripcion,
-                    fontSize = 14.sp
+                    text = mascota.nombre,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "${mascota.especie} • ${mascota.edad} años",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            Spacer(Modifier.height(12.dp))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -157,9 +177,9 @@ fun ItemFeed(
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "${mascota.likes} likes",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    text = mascota.likes.toString(),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }
