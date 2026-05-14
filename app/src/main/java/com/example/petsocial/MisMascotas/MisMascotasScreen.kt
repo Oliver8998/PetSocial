@@ -2,17 +2,14 @@ package com.example.petsocial.MisMascotas
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.petsocial.Models.Mascota
+import com.example.petsocial.Models.Rutas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +28,7 @@ fun MisMascotasScreen(
 ) {
     val context = LocalContext.current
     val mascotas = mascotasViewModel.misMascotas
-    val isLoading by mascotasViewModel.isLoading.observeAsState(false)
+    val isLoading by mascotasViewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         mascotasViewModel.cargarMisMascotas()
@@ -39,7 +37,7 @@ fun MisMascotasScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Mis Mascotas") },
+                title = { Text(text = "Mis Mascotas") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -49,7 +47,7 @@ fun MisMascotasScreen(
             FloatingActionButton(
                 onClick = {
                     mascotasViewModel.mascotaSeleccionada = null
-                    navController.navigate("mascota_form")
+                    navController.navigate(Rutas.MASCOTA_FORM)
                 }
             ) {
                 Icon(Icons.Default.Add, contentDescription = "Añadir mascota")
@@ -82,12 +80,12 @@ fun MisMascotasScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            "No tienes mascotas",
+                            text = "No tienes mascotas",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(Modifier.height(8.dp))
-                        Text("Toca el botón + para añadir una")
+                        Text(text = "Toca el botón + para añadir una")
                     }
                 }
             } else {
@@ -101,7 +99,7 @@ fun MisMascotasScreen(
                             mascota = mascota,
                             onClick = {
                                 mascotasViewModel.mascotaSeleccionada = mascota
-                                navController.navigate("mascota_form")
+                                navController.navigate(Rutas.MASCOTA_FORM)
                             },
                             onLongClick = {
                                 mascotasViewModel.borrarMascota(mascota)
@@ -141,27 +139,12 @@ fun ItemMascota(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(60.dp)
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outline,
-                        MaterialTheme.shapes.small
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = when (mascota.especie.lowercase()) {
-                        "perro" -> Icons.Default.Pets
-                        "gato" -> Icons.Default.Pets
-                        else -> Icons.Default.Pets
-                    },
-                    contentDescription = null,
-                    modifier = Modifier.size(32.dp),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Pets,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
 
             Spacer(Modifier.width(16.dp))
 
@@ -185,20 +168,18 @@ fun ItemMascota(
                 }
             }
 
-            Column(horizontalAlignment = Alignment.End) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = mascota.likes.toString(),
-                        fontSize = 14.sp
-                    )
-                }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(Modifier.width(4.dp))
+                Text(
+                    text = mascota.likes.toString(),
+                    fontSize = 14.sp
+                )
             }
         }
     }

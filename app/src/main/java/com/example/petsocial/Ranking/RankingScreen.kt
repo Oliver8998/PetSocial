@@ -2,15 +2,15 @@ package com.example.petsocial.Ranking
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Pets
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,7 +27,8 @@ fun RankingScreen(
     navController: NavHostController
 ) {
     val mascotas = rankingViewModel.mascotasRanking
-    val isLoading by rankingViewModel.isLoading.observeAsState(false)
+    val isLoading by rankingViewModel.isLoading.collectAsState()
+    val filtroActual by rankingViewModel.filtroEspecie.collectAsState()
 
     LaunchedEffect(Unit) {
         rankingViewModel.cargarRanking()
@@ -36,7 +37,7 @@ fun RankingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("🏆 Ranking de Mascotas") },
+                title = { Text(text = "Ranking de Mascotas") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -48,6 +49,32 @@ fun RankingScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            val especies = rankingViewModel.getEspecies()
+
+            if (especies.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = filtroActual == "TODAS",
+                            onClick = { rankingViewModel.setFiltro("TODAS") },
+                            label = { Text(text = "Todas") }
+                        )
+                    }
+                    items(especies) { especie ->
+                        FilterChip(
+                            selected = filtroActual.lowercase() == especie.lowercase(),
+                            onClick = { rankingViewModel.setFiltro(especie) },
+                            label = { Text(text = especie) }
+                        )
+                    }
+                }
+            }
+
             if (isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
@@ -69,7 +96,7 @@ fun RankingScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            "No hay mascotas en el ranking",
+                            text = "No hay mascotas en el ranking",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -98,10 +125,10 @@ fun ItemRanking(
     posicion: Int,
     mascota: Mascota
 ) {
-    val medallColor = when (posicion) {
-        1 -> Color(0xFFFFD700) // Oro
-        2 -> Color(0xFFC0C0C0) // Plata
-        3 -> Color(0xFFCD7F32) // Bronce
+    val medallaColor = when (posicion) {
+        1 -> Color(0xFFFFD700)
+        2 -> Color(0xFFC0C0C0)
+        3 -> Color(0xFFCD7F32)
         else -> MaterialTheme.colorScheme.surfaceVariant
     }
 
@@ -111,7 +138,7 @@ fun ItemRanking(
             defaultElevation = if (posicion <= 3) 8.dp else 4.dp
         ),
         colors = CardDefaults.cardColors(
-            containerColor = if (posicion <= 3) medallColor.copy(alpha = 0.1f)
+            containerColor = if (posicion <= 3) medallaColor.copy(alpha = 0.1f)
             else MaterialTheme.colorScheme.surface
         )
     ) {
@@ -129,7 +156,7 @@ fun ItemRanking(
                     Icon(
                         imageVector = Icons.Default.EmojiEvents,
                         contentDescription = null,
-                        tint = medallColor,
+                        tint = medallaColor,
                         modifier = Modifier.size(40.dp)
                     )
                 } else {
@@ -166,9 +193,7 @@ fun ItemRanking(
                 )
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,

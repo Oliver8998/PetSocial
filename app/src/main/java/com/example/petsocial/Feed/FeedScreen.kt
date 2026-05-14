@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -17,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.petsocial.Models.Mascota
+import com.example.petsocial.Models.Rutas
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +24,7 @@ fun FeedScreen(
     navController: NavHostController
 ) {
     val mascotas = feedViewModel.todasMascotas
-    val isLoading by feedViewModel.isLoading.observeAsState(false)
+    val isLoading by feedViewModel.isLoading.collectAsState()
 
     LaunchedEffect(Unit) {
         feedViewModel.cargarTodasMascotas()
@@ -34,7 +33,7 @@ fun FeedScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Feed de Mascotas") },
+                title = { Text(text = "Feed de Mascotas") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer
                 )
@@ -67,7 +66,7 @@ fun FeedScreen(
                         )
                         Spacer(Modifier.height(16.dp))
                         Text(
-                            "No hay mascotas",
+                            text = "No hay mascotas",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -83,7 +82,8 @@ fun FeedScreen(
                         ItemFeed(
                             mascota = mascota,
                             onClick = {
-                                navController.navigate("detalle/${mascota.id}")
+                                feedViewModel.mascotaSeleccionada = mascota
+                                navController.navigate(Rutas.DETALLE)
                             }
                         )
                     }
@@ -146,9 +146,7 @@ fun ItemFeed(
 
             Spacer(Modifier.height(12.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,

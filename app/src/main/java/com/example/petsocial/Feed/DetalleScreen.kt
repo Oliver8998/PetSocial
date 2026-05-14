@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -21,19 +20,13 @@ import com.example.petsocial.Models.Mascota
 @Composable
 fun DetalleScreen(
     feedViewModel: FeedViewModel,
-    navController: NavHostController,
-    mascotaId: String
+    navController: NavHostController
 ) {
-    val mascota by feedViewModel.mascotaDetalle.observeAsState()
-
-    LaunchedEffect(mascotaId) {
-        feedViewModel.cargarMascotaPorId(mascotaId)
-    }
-
+    val mascota = feedViewModel.mascotaSeleccionada
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detalle") },
+                title = { Text(text = "Detalle") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
@@ -53,7 +46,7 @@ fun DetalleScreen(
             }
         } else {
             DetalleContent(
-                mascota = mascota!!,
+                mascota = mascota,
                 feedViewModel = feedViewModel,
                 modifier = Modifier.padding(paddingValues)
             )
@@ -100,7 +93,6 @@ fun DetalleContent(
 
         if (mascota.descripcion.isNotEmpty()) {
             Spacer(Modifier.height(16.dp))
-
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(

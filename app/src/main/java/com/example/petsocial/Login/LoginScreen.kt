@@ -3,7 +3,6 @@ package com.example.petsocial.Login
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +24,7 @@ fun LoginScreen(
     var nombre by remember { mutableStateOf("") }
     var esRegistro by remember { mutableStateOf(false) }
 
-    val isLoading by loginViewModel.isLoading.observeAsState(false)
+    val isLoading by loginViewModel.isLoading.collectAsState()
 
     Column(
         modifier = Modifier
@@ -43,7 +42,7 @@ fun LoginScreen(
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "🐾 PetSocial 🐾",
+            text = "PetSocial",
             fontSize = 24.sp,
             color = MaterialTheme.colorScheme.primary
         )
@@ -120,9 +119,7 @@ fun LoginScreen(
 
         Spacer(Modifier.height(16.dp))
 
-        TextButton(
-            onClick = { esRegistro = !esRegistro }
-        ) {
+        TextButton(onClick = { esRegistro = !esRegistro }) {
             Text(
                 if (esRegistro) "¿Ya tienes cuenta? Inicia sesión"
                 else "¿No tienes cuenta? Regístrate"

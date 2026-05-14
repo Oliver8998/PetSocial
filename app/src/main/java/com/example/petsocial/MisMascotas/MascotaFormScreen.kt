@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -27,7 +26,7 @@ fun MascotaFormScreen(
     var edad by remember { mutableStateOf(mascotaEditar?.edad?.toString() ?: "") }
     var descripcion by remember { mutableStateOf(mascotaEditar?.descripcion ?: "") }
 
-    val isLoading by mascotasViewModel.isLoading.observeAsState(false)
+    val isLoading by mascotasViewModel.isLoading.collectAsState()
 
     Scaffold(
         topBar = {

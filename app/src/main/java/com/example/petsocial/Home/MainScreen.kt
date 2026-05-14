@@ -2,6 +2,7 @@ package com.example.petsocial.Home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,37 +41,29 @@ fun MainScreen(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    var mostrarMenu by remember { mutableStateOf(false) }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
                 Spacer(Modifier.height(16.dp))
-
                 Text(
-                    "🐾 PetSocial",
+                    text = "PetSocial",
                     modifier = Modifier.padding(16.dp),
                     style = MaterialTheme.typography.headlineSmall
                 )
 
-                Divider()
+                HorizontalDivider()
 
                 Spacer(Modifier.height(8.dp))
 
                 NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
-                    label = { Text("Perfil") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = null) },
+                    label = { Text(text = "Cerrar Sesión") },
                     selected = false,
                     onClick = {
-                        // TODO: Implementar perfil
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-
-                NavigationDrawerItem(
-                    icon = { Icon(Icons.Default.ExitToApp, contentDescription = null) },
-                    label = { Text("Cerrar Sesión") },
-                    selected = false,
-                    onClick = {
+                        scope.launch { drawerState.close() }
                         loginViewModel.signOut(context)
                         mainNavController.navigate(Rutas.LOGIN) {
                             popUpTo(0)
@@ -84,14 +77,32 @@ fun MainScreen(
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("PetSocial") },
+                    title = { Text(text = "PetSocial") },
                     navigationIcon = {
                         IconButton(onClick = {
-                            scope.launch {
-                                drawerState.open()
-                            }
+                            scope.launch { drawerState.open() }
                         }) {
                             Icon(Icons.Default.Menu, contentDescription = "Menú")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { mostrarMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Opciones")
+                        }
+                        DropdownMenu(
+                            expanded = mostrarMenu,
+                            onDismissRequest = { mostrarMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = "Cerrar Sesión") },
+                                onClick = {
+                                    mostrarMenu = false
+                                    loginViewModel.signOut(context)
+                                    mainNavController.navigate(Rutas.LOGIN) {
+                                        popUpTo(0)
+                                    }
+                                }
+                            )
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -103,33 +114,31 @@ fun MainScreen(
                 NavigationBar {
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Home, contentDescription = null) },
-                        label = { Text("Feed") },
-                        selected = currentRoute == "bottom_feed",
+                        label = { Text(text = "Feed") },
+                        selected = currentRoute == Rutas.BOTTOM_FEED,
                         onClick = {
-                            navController.navigate("bottom_feed") {
-                                popUpTo("bottom_feed") { inclusive = true }
+                            navController.navigate(Rutas.BOTTOM_FEED) {
+                                popUpTo(Rutas.BOTTOM_FEED) { inclusive = true }
                             }
                         }
                     )
-
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Pets, contentDescription = null) },
-                        label = { Text("Mis Mascotas") },
-                        selected = currentRoute == "bottom_mascotas",
+                        label = { Text(text = "Mis Mascotas") },
+                        selected = currentRoute == Rutas.BOTTOM_MASCOTAS,
                         onClick = {
-                            navController.navigate("bottom_mascotas") {
-                                popUpTo("bottom_feed") { saveState = true }
+                            navController.navigate(Rutas.BOTTOM_MASCOTAS) {
+                                popUpTo(Rutas.BOTTOM_FEED) { saveState = true }
                             }
                         }
                     )
-
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.EmojiEvents, contentDescription = null) },
-                        label = { Text("Ranking") },
-                        selected = currentRoute == "bottom_ranking",
+                        label = { Text(text = "Ranking") },
+                        selected = currentRoute == Rutas.BOTTOM_RANKING,
                         onClick = {
-                            navController.navigate("bottom_ranking") {
-                                popUpTo("bottom_feed") { saveState = true }
+                            navController.navigate(Rutas.BOTTOM_RANKING) {
+                                popUpTo(Rutas.BOTTOM_FEED) { saveState = true }
                             }
                         }
                     )
@@ -138,24 +147,22 @@ fun MainScreen(
         ) { paddingValues ->
             NavHost(
                 navController = navController,
-                startDestination = "bottom_feed",
+                startDestination = Rutas.BOTTOM_FEED,
                 modifier = Modifier.padding(paddingValues)
             ) {
-                composable("bottom_feed") {
+                composable(Rutas.BOTTOM_FEED) {
                     FeedScreen(
                         feedViewModel = feedViewModel,
                         navController = mainNavController
                     )
                 }
-
-                composable("bottom_mascotas") {
+                composable(Rutas.BOTTOM_MASCOTAS) {
                     MisMascotasScreen(
                         mascotasViewModel = mascotasViewModel,
                         navController = mainNavController
                     )
                 }
-
-                composable("bottom_ranking") {
+                composable(Rutas.BOTTOM_RANKING) {
                     RankingScreen(
                         rankingViewModel = rankingViewModel,
                         navController = mainNavController
